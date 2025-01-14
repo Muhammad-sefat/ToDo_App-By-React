@@ -1,30 +1,48 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
-function InputBox({ addTask }) {
-  const [input, setInput] = useState("");
+function InputBox({ addTask, currentTask, updateTask }) {
+  const [inputValue, setInputValue] = useState("");
 
-  const handleAddTask = () => {
-    if (input.trim()) {
-      addTask(input);
-      setInput("");
+  useEffect(() => {
+    if (currentTask) {
+      setInputValue(currentTask.text); // Populate input when editing
+    } else {
+      setInputValue(""); // Clear input when no task is being edited
     }
+  }, [currentTask]);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!inputValue.trim()) return;
+
+    if (currentTask) {
+      updateTask(currentTask.id, inputValue); // Update task if editing
+    } else {
+      addTask(inputValue); // Add new task if not editing
+    }
+    setInputValue(""); // Clear input after submission
   };
 
   return (
     <div className="flex items-center mb-4">
-      <input
-        type="text"
-        className="border px-4 py-2 mr-2"
-        placeholder="Add a new task"
-        value={input}
-        onChange={(e) => setInput(e.target.value)}
-      />
-      <button
-        className="bg-blue-500 text-white px-4 py-2"
-        onClick={handleAddTask}
+      <form
+        onSubmit={handleSubmit}
+        className="flex items-center gap-3 mb-4 w-full max-w-md"
       >
-        Add Task
-      </button>
+        <input
+          type="text"
+          className="border p-2 flex-grow rounded"
+          placeholder="Add a new task..."
+          value={inputValue}
+          onChange={(e) => setInputValue(e.target.value)}
+        />
+        <button
+          type="submit"
+          className="bg-blue-500 text-white px-4 py-2 rounded"
+        >
+          {currentTask ? "Update Task" : "Add Task"} {/* Change label */}
+        </button>
+      </form>
     </div>
   );
 }
